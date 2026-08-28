@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this software or data, please cite the companion manuscript."
+title: "Imputation or Acquisition? An EU-27 Benchmark Locating the Boundary of Gap-Filling in Live Life Cycle Inventories (companion code and data)"
+authors:
+  - family-names: Khan
+    given-names: Tariq Ali
+  - family-names: Kumar
+    given-names: Rishi
+  - family-names: Cerdas
+    given-names: Felipe
+  - family-names: Sangwan
+    given-names: Kuldip Singh
+  - family-names: Khanna
+    given-names: Navneet
+date-released: 2026
+license: MIT
+repository-code: "REPLACE_WITH_GITHUB_URL"
+preferred-citation:
+  type: conference-paper
+  title: "Imputation or Acquisition? An EU-27 Benchmark Locating the Boundary of Gap-Filling in Live Life Cycle Inventories"
+  authors:
+    - family-names: Khan
+      given-names: Tariq Ali
+    - family-names: Kumar
+      given-names: Rishi
+    - family-names: Cerdas
+      given-names: Felipe
+    - family-names: Sangwan
+      given-names: Kuldip Singh
+    - family-names: Khanna
+      given-names: Navneet
+  collection-title: "Procedia CIRP"
+  conference:
+    name: "34th CIRP Conference on Life Cycle Engineering (CIRP LCE 2027)"
+  year: 2027
