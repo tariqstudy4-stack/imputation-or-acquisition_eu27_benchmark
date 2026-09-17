@@ -27,6 +27,7 @@ repair methods, propagation through the Leontief inverse and characterization, a
 the downstream metrics, GSD-sensitivity, and figure-generation stages. Boxes name
 the exact script or artifact responsible for each stage; see
 [Experiment design](#experiment-design) below for the full description.
+Regenerate this figure with `figures/make_experiment_design_fig.py`.
 
 ## Data build
 
