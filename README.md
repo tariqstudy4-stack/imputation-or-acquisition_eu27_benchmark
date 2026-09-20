@@ -245,6 +245,9 @@ versions — the seed derivation is fixed and explicit (see `CHANGELOG.md`) and 
 stochastic step uses `numpy.random.default_rng` or a fixed `torch.manual_seed`, not
 Python's process-randomized `hash()`.
 
+Declaration of AI use:
+Declaration of Generative AI and AI-assisted technologies in the research process. During the preparation of this work, the author(s) used Claude (Anthropic) to run a simulated multi-reviewer critique of the manuscript draft prior to submission, to assist to a limited extent with code-management tasks, and to help condense the manuscript to the conference's six-page limit. All resulting suggestions and edits were evaluated by the author(s), who take full responsibility for the content of the publication.
+
 ## License
 
 Code in this repository is released under the MIT License (see `LICENSE`). The
