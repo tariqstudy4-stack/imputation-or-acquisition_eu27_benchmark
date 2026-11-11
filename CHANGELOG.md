@@ -1,5 +1,19 @@
 # Changelog
 
+## Revised manuscript release (500 seeds)
+
+- Added `code/run500.py`, `ana500.py`, `dose500.py` and the corresponding `results/` and `figures/` files: main grid, factorial comparison (sibling mean or KNN estimate crossed with lognormal factors or resampling) and GSD sweep with 500 seeds and 300 Monte Carlo draws, and the supplier dose experiment (1, 2, 3, 6, 12, 25 missing industries) with 200 seeds. The 3-seed files are kept for provenance.
+- Main-grid values of the 3-seed version are reproduced for random loss and sensor failure (for example 5.3% and 83.6% pedigree coverage). Correction: pedigree ranking-flip rate in the manuscript's Table 1 is 3.1%, not 3.2%.
+- `CITATION.cff`: title ("Live" removed, "Input-Output" added), sixth author, repository URL.
+
+### Second revision (KNN donor search, row-mean reference, interval width)
+
+- Fix, `code/experiment_final_eu.py` (`knn_impute`): under supplier non-disclosure a masked column has no jointly observed donor. The earlier code then ranked tied distances and kept the first ten candidates, an arbitrary subset (nine of the 45 candidate industries have a single-member NACE section and were affected most). The branch now uses the full sibling set with equal weights, which is the sibling-averaging rule of the pedigree baseline. KNN under random loss and sensor failure is unchanged; KNN under supplier non-disclosure now has the same point estimate and error as the pedigree baseline (23.9% at the 40% rate) and differs only in coverage (58.4% against 26.1%). The previous version is in the git history.
+- Rerun: KNN rows of the main grid (`res_BLOCK_*`) and the supplier dose experiment (`dose_*`), 500 and 200 seeds.
+- Added: `code/rowmean.py` (naive row-mean fill, no uncertainty estimate; main grid and dose experiment) and `code/fact_width.py` (factorial comparison with the 95% interval width and the side of the miss; coverage values identical to the earlier run).
+- Added: interval width (median across the 19 targets and four indicators of the 95% interval width divided by the true impact) in Table 2 and Table S2; interquartile ranges of the dose experiment in Table S4 and Fig. S1.
+- `results/summary501.json` and `figures/` replace `summary500.json` and the earlier figures; `code/make501.py` and `code/numbers501.py` regenerate them.
+
 ## Unreleased — re-review hardening pass (no result changes)
 
 A verification re-review after the previous pass surfaced nine residual issues (six

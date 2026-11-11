@@ -1,17 +1,27 @@
-# Imputation or Acquisition? An EU-27 Benchmark Locating the Boundary of Gap-Filling in Live Life Cycle Inventories
+# Imputation or Acquisition? An EU-27 Input-Output Benchmark Locating the Boundary of Gap-Filling in Life Cycle Inventories
 
 Companion repository for the manuscript submitted to the 34th CIRP Conference on
 Life Cycle Engineering (CIRP LCE 2027):
 
-> T. A. Khan, R. Kumar, F. Cerdas, K. S. Sangwan, N. Khanna, "Imputation or
-> Acquisition? An EU-27 Benchmark Locating the Boundary of Gap-Filling in Live
-> Life Cycle Inventories", Procedia CIRP, 34th CIRP LCE 2027.
+> T. A. Khan, R. Kumar, V. Jayakumar, F. Cerdas, K. S. Sangwan, N. Khanna,
+> "Imputation or Acquisition? An EU-27 Input-Output Benchmark Locating the
+> Boundary of Gap-Filling in Life Cycle Inventories", Procedia CIRP, 34th CIRP LCE 2027.
 
 All data are official EU statistics, retrieved from public Eurostat API endpoints.
 No license, registration, or paid data access is required to reproduce any result
 in this repository. (Working title above: "Decision cost of incomplete life cycle
 inventories" — retained in `CHANGELOG.md` for provenance; the manuscript title is
 the one above.)
+
+> **Current results (revised manuscript): 500 seeds.** The sections below
+> ("Headline findings", "Figures manifest" and the 3-seed CSVs `results_final_eu*.csv`,
+> `gsd_sensitivity_eu.csv`) describe the earlier 3-seed release and are kept for
+> provenance. The 500-seed results, figures and scripts are described in the section
+> "500-seed results (revised manuscript)" at the end of this file. Two changes matter when
+> comparing: (i) the KNN donor search under supplier non-disclosure was corrected
+> (`CHANGELOG.md`), so the 3-seed KNN values for the `BLOCK` pattern no longer apply
+> (KNN now equals the pedigree point estimate there); (ii) the ground truth and the
+> other patterns are unchanged.
 
 **Reproducibility status:** every number below was regenerated from the included
 `data_build/` matrices, independently re-run across three review passes (most
@@ -244,6 +254,22 @@ pandas 3.0.2, torch 2.13.0 (CPU). Reproducibility does not depend on exact packa
 versions — the seed derivation is fixed and explicit (see `CHANGELOG.md`) and every
 stochastic step uses `numpy.random.default_rng` or a fixed `torch.manual_seed`, not
 Python's process-randomized `hash()`.
+
+
+## 500-seed results (revised manuscript)
+
+The revised manuscript reports 500 seeds per condition (the 3-seed files in `results/` from the earlier version are kept for provenance). Files added in this release:
+
+| Result in the manuscript | Script | Output |
+|---|---|---|
+| Main grid, five methods (Table 1, Fig. 1a-f, h) | `code/run500.py <pattern> <methods> <seed0> <seed1>` | `results/res_<pattern>_*_0_500.csv` |
+| Row-mean reference (Table 1, Fig. 1, Fig. S1) | `code/rowmean.py` | `results/res_ROWMEAN_0_500.csv`, `results/dose_ROWMEAN_0_200.csv` |
+| Factorial comparison with interval width (Table 2) | `code/fact_width.py <pattern> <seed0> <seed1>` | `results/fact_*_0_500.csv` |
+| GSD sweep (Fig. 1g) | `code/ana500.py <pattern> <seed0> <seed1>` | `results/sweep_*.csv` |
+| Supplier dose experiment (Fig. S1) | `code/dose500.py` | `results/dose_*_0_200.csv` (200 seeds) |
+| Summary values, figures | `code/make501.py`, `code/numbers501.py` (run from the repository root) | `results/summary501.json`, `results/numbers.json`, `figures/fig1_500seed.png`, `figures/fig2_dose.png` |
+
+Run the `code/` scripts from the `code/` folder; they read `experiment_final_eu.py` and `../data_build/`. `<pattern>` is `MCAR`, `FLOW` or `BLOCK`; `<methods>` is a comma-separated list such as `PEDIGREE,KNN,SOFTIMPUTE,GNN` or `VAE`. A single-seed run of `fact_width.py MCAR 0 1` reproduces the stored seed-0 rows exactly. Under `BLOCK`, KNN has no donor for a masked column and equals the pedigree point estimate (see `CHANGELOG`).
 
 Declaration of AI use:
 Declaration of Generative AI and AI-assisted technologies in the research process. During the preparation of this work, the author(s) used Claude (Anthropic) to run a simulated multi-reviewer critique of the manuscript draft prior to submission, to assist to a limited extent with code-management tasks, and to help condense the manuscript to the conference's six-page limit. All resulting suggestions and edits were evaluated by the author(s), who take full responsibility for the content of the publication.

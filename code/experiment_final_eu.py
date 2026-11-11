@@ -130,7 +130,13 @@ def knn_impute(M, mask, k=10):
     for j in np.unique(np.where(mask)[1]):
         oj = obs[:,j]
         rows = np.where(mask[:, j])[0]
-        if oj.sum() < 5:
+        use_all = oj.sum() < 5
+        if use_all:
+            # (almost) no observed entries in the column: no distance can be computed, so the
+            # donor set is the full sibling set with equal weights, i.e. exactly the pedigree
+            # sibling-averaging rule. (Earlier versions kept only the first 10 of the tied
+            # candidates, which was an arbitrary subset whenever the sibling set exceeded 10;
+            # see CHANGELOG.md.)
             cand = np.array(sib_cols(j, blocked)); d = np.ones(len(cand))
         else:
             cand = np.array([t for t in range(n) if t!=j and t not in blocked])
@@ -143,7 +149,7 @@ def knn_impute(M, mask, k=10):
                 d = np.sqrt(np.nanmean(sqd, axis=0))
             n_valid = valid.sum(axis=0)
             d = np.where(n_valid > 0, d, np.inf) + 1e-12
-        kk = min(k, len(cand)); top = np.argsort(d)[:kk]
+        kk = len(cand) if use_all else min(k, len(cand)); top = np.argsort(d, kind='stable')[:kk]
         dj, cj = d[top], cand[top]
 
         vals = M[np.ix_(rows, cj)].astype(float)
