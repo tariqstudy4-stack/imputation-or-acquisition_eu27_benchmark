@@ -13,6 +13,7 @@
 - Added: `code/rowmean.py` (naive row-mean fill, no uncertainty estimate; main grid and dose experiment) and `code/fact_width.py` (factorial comparison with the 95% interval width and the side of the miss; coverage values identical to the earlier run).
 - Added: interval width (median across the 19 targets and four indicators of the 95% interval width divided by the true impact) in Table 2 and Table S2; interquartile ranges of the dose experiment in Table S4 and Fig. S1.
 - Added: `code/summary_extra.py` and `results/summary_extra.json` (mean error, median coverage and 95% bootstrap intervals of the ranking-flip rate over seeds for every condition of the main grid; the source of the additional entries in Table S1).
+- Added: `code/center_test.py`, `code/center_summary.py` and `results/center_*.csv`, `results/center_summary.json`: the independent lognormal factors of the pedigree baseline applied around other point estimates (row mean, SoftImpute, VAE, GNN) and around the true values as a zero-error reference, 500 seeds, 300 draws (SI Table S5). `code/draws_check.py` and `results/draws_check_0_50.csv`: VAE and GNN coverage from 75, 150 and 300 draws of the same trained models, 50 seeds (SI Table S6).
 - `results/summary501.json` and `figures/` replace `summary500.json` and the earlier figures; `code/make501.py` and `code/numbers501.py` regenerate them.
 
 ## Verification pass (no result changes)

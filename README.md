@@ -289,6 +289,8 @@ The revised manuscript reports 500 seeds per condition (the 3-seed files in `res
 | Factorial comparison with interval width (Table 2) | `code/fact_width.py <pattern> <seed0> <seed1>` | `results/fact_*_0_500.csv` |
 | GSD sweep (Fig. 1g) | `code/ana500.py <pattern> <seed0> <seed1>` | `results/sweep_*.csv` |
 | Supplier dose experiment (Fig. S1) | `code/dose500.py` | `results/dose_*_0_200.csv` (200 seeds) |
+| Interval factors around other point estimates (Table S5) | `code/center_test.py <pattern> <seed0> <seed1>`, `code/center_summary.py` | `results/center_*_0_500.csv`, `results/center_summary.json` |
+| Monte Carlo draw check (Table S6) | `code/draws_check.py <seed0> <seed1>` | `results/draws_check_0_50.csv` |
 | Mean error, median coverage, flip-rate intervals (Table S1) | `code/summary_extra.py` (run from the repository root) | `results/summary_extra.json` |
 | Summary values, figures | `code/make501.py`, `code/numbers501.py` (run from the repository root) | `results/summary501.json`, `results/numbers.json`, `figures/fig1_500seed.png`, `figures/fig2_dose.png` |
 
