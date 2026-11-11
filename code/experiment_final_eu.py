@@ -176,7 +176,7 @@ def knn_impute(M, mask, k=10):
                     row_obs = ~mask[r, :]
                     fb = M[r, row_obs].mean() if row_obs.any() else 0.0
                 imputed[ridx] = fb
-                # NOTE (leak hardening): the raw `vals` slots for this row are donor cells that are
+                # NOTE (leak guard): the raw `vals` slots for this row are donor cells that are
                 # ALL masked in this run -- resampling from them would reintroduce ground truth into
                 # the MC interval. Overwrite this row's donor values with the fallback estimate so
                 # resampling is degenerate (always returns the masked-aware fallback), never leaky.

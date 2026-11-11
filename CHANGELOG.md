@@ -14,12 +14,12 @@
 - Added: interval width (median across the 19 targets and four indicators of the 95% interval width divided by the true impact) in Table 2 and Table S2; interquartile ranges of the dose experiment in Table S4 and Fig. S1.
 - `results/summary501.json` and `figures/` replace `summary500.json` and the earlier figures; `code/make501.py` and `code/numbers501.py` regenerate them.
 
-## Unreleased — re-review hardening pass (no result changes)
+## Verification pass (no result changes)
 
-A verification re-review after the previous pass surfaced nine residual issues (six
+A verification after the previous pass found nine residual issues (six
 in the manuscript, three in the code). All fixed here; the two code changes are
-hardening of currently-unreachable paths, and both result CSVs were re-verified
-**bit-exact identical** before/after this pass.
+guards on currently-unreachable paths, and both result CSVs were re-verified
+identical before and after this pass.
 
 Code:
 - `knn_impute()` no-donor fallback: the fallback's Monte Carlo resampling weights
@@ -43,7 +43,7 @@ Manuscript (text only, no numbers changed):
   against a 95% target).
 - §4.5 "vary between runs" claim reworded — it dated from before the seed fix, when
   reruns genuinely were non-deterministic; under fixed seeds it contradicted the
-  bit-exact reproducibility claim.
+  reproducibility claim.
 - Materials and Methods now discloses the column-sum stabilization rescale in
   `impacts()` (fires only on repaired matrices, mostly MCAR@20/40%; the true matrix
   never approaches the bound) and the per-method Monte Carlo sample counts
@@ -53,9 +53,7 @@ Manuscript (text only, no numbers changed):
 
 ## Unreleased — data-leakage fix, GSD-sweep FLOW bug fix, manuscript corrections
 
-This pass followed an independent 5-reviewer methodological audit (Editor-in-Chief +
-Methodology + Domain + Cross-disciplinary + Devil's Advocate) of the manuscript and
-this repository, which found issues beyond what the previous pass's numeric-fidelity
+This pass followed a methodological audit of the manuscript and this repository, which found issues beyond what the previous pass's numeric-fidelity
 check (quoted numbers vs. CSVs) had caught. All are fixed here.
 
 ### 1. Data leakage in `repair_baseline()` / `knn_impute()`
@@ -111,7 +109,7 @@ BLOCK-style column-masking branch, producing masks nothing like the FLOW pattern
 everywhere else in the paper (84 cells masked via column-blocking vs. the ~32-84 cells
 a true row-structured FLOW mask produces) and coverage numbers around 15-20% where the
 correct FLOW branch gives 75-85%. Fixed to mirror `experiment_final_eu.py`'s FLOW
-branch exactly; re-verified bit-exact reproducible after the fix.
+branch exactly; reproduced identically after the fix.
 
 ### 3. GSD sweep excluded FLOW entirely
 
@@ -149,7 +147,7 @@ BLOCK@40% value per method, pulled from `results/results_final_eu_summary.csv`.
 
 ### Reproducibility re-verification
 
-All of the above were re-verified bit-exact reproducible (`numpy.array_equal`) across
+All of the above were reproduced identically (`numpy.array_equal`) across
 independent fresh Python processes after being applied — both `experiment_final_eu.py`
 (all three patterns) and `gsd_sensitivity.py` (full grid) independently. Reproducibility
 survives all four fixes.
@@ -191,12 +189,12 @@ by grep across both scripts).
 ### Verification performed in this pass
 
 With the real `data_build/` matrices now available (they were not present in earlier
-review passes, which could only cross-check the already-computed result CSVs against
+passes, which could only cross-check the already-computed result CSVs against
 the paper text and figures, not regenerate them):
 
 1. Ran the corrected `experiment_final_eu.py` (all three patterns) and
    `gsd_sensitivity.py` in **four independent, freshly-started Python processes**
-   (across two separate review sessions). All four produced **bit-exact identical**
+   (across two separate sessions). All four produced **identical**
    `mdape`, `coverage`, and `flips` columns — confirmed with `numpy.array_equal`
    (not `np.isclose`), i.e. exact floating-point equality, not approximate agreement.
 2. Cross-checked the regenerated numbers against every quantitative claim in the
@@ -204,7 +202,7 @@ the paper text and figures, not regenerate them):
    embedded in the manuscript. All matched.
 3. Confirmed `torch.set_num_threads(1)` is set before any model training, and that
    `torch.manual_seed(seed)` is called per-condition for the VAE and GNN — both
-   necessary for the bit-exact reproducibility observed in (1); CPU-only, so no
+   necessary for the reproducibility observed in (1); CPU-only, so no
    GPU non-determinism applies.
 
 This is a stronger reproducibility check than "the fix looks correct" — it is an
@@ -236,4 +234,4 @@ Before this pass, the repository as originally assembled bundled the *pre-fix* (
 code together with results and a README that had already been generated from a
 still-earlier, differently-seeded run — i.e., the code, results, and documentation
 were three-way inconsistent. `results/`, `figures/`, and `README.md` are now all
-regenerated from a single, verified, bit-exact-reproducible run of the fixed code.
+regenerated from a single, verified, reproducible run of the fixed code.

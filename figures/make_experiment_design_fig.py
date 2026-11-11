@@ -83,7 +83,7 @@ def fan(src_y, dst_y, xs_dst, x_src=5.0):
 # Title
 ax.text(4.6, 11.05, "Experimental design and reproducibility pipeline",
          ha="center", va="center", fontsize=16.5, weight="bold", color=INK)
-ax.text(4.6, 10.6, "Gap-filling benchmark for live, partial life cycle "
+ax.text(4.6, 10.6, "Gap-filling benchmark for partial life cycle "
                     "inventories over the EU-27 technosphere",
          ha="center", va="center", fontsize=10.5, style="italic", color="#555")
 
@@ -110,7 +110,7 @@ box(4.6, 6.55, 9.5, 1.55,
     "Missingness design (imposed on A, B)\n"
     "MCAR (random loss)  ·  FLOW (sensor failure, row-structured)\n"
     "BLOCK (supplier non-disclosure, column-structured)\n"
-    "rates: 5, 10, 20, 40%   ×   3 seeds / condition",
+    "rates: 5, 10, 20, 40%   ×   500 seeds / condition",
     highlight=True, fontsize=8.6)
 badge(6.55, 3, highlight=True)
 
@@ -138,19 +138,18 @@ fan(5.0 - 0.8, 3.35 + 0.7, xs, x_src=4.6)
 
 # Row 6: outputs
 box(2.3, 2.0, 4.3, 1.0,
-    "results/results_final_eu*.csv\n(main 3×4 pattern-rate grid)", fontsize=9.0)
+    "results/res_*_0_500.csv, fact_*_0_500.csv\n(main 3×4 pattern-rate grid, 500 seeds)", fontsize=9.0)
 box(6.9, 2.0, 4.3, 1.0,
-    "code/gsd_sensitivity.py\n→ results/gsd_sensitivity_eu.csv\n"
-    "(GSD swept 1.2 – 3.0)", fontsize=9.0)
+    "code/ana500.py, dose500.py\n→ results/sweep_*_0_500.csv, dose_*_0_200.csv\n"
+    "(GSD swept 1.2 – 3.0; supplier dose experiment)", fontsize=9.0)
 badge(2.0, 6)
 arrow((4.6, 3.35 - 0.7), (2.3, 2.0 + 0.5), rad=0.15)
 arrow((4.6, 3.35 - 0.7), (6.9, 2.0 + 0.5), rad=-0.15)
 
 # Row 7: figures
 box(4.6, 0.65, 9.3, 1.0,
-    "code/make_figures.py\n"
-    "→ figures/chart_error_*.png, chart_coverage_*.png, chart_flips_pedigree.png,\n"
-    "fig_gsd_sensitivity.png, fig_eu_full_benchmark.png", fontsize=9.0)
+    "code/make501.py\n"
+    "→ figures/fig1_500seed.png, figures/fig2_dose.png", fontsize=9.0)
 badge(0.65, 7)
 arrow((2.3, 2.0 - 0.5), (4.6, 0.65 + 0.5), rad=-0.15)
 arrow((6.9, 2.0 - 0.5), (4.6, 0.65 + 0.5), rad=0.15)

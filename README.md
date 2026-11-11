@@ -13,21 +13,18 @@ in this repository. (Working title above: "Decision cost of incomplete life cycl
 inventories" — retained in `CHANGELOG.md` for provenance; the manuscript title is
 the one above.)
 
-> **Current results (revised manuscript): 500 seeds.** The sections below
-> ("Headline findings", "Figures manifest" and the 3-seed CSVs `results_final_eu*.csv`,
-> `gsd_sensitivity_eu.csv`) describe the earlier 3-seed release and are kept for
-> provenance. The 500-seed results, figures and scripts are described in the section
-> "500-seed results (revised manuscript)" at the end of this file. Two changes matter when
-> comparing: (i) the KNN donor search under supplier non-disclosure was corrected
-> (`CHANGELOG.md`), so the 3-seed KNN values for the `BLOCK` pattern no longer apply
-> (KNN now equals the pedigree point estimate there); (ii) the ground truth and the
-> other patterns are unchanged.
+**Results in this repository are the 500-seed results of the revised manuscript** (200 seeds
+for the supplier dose experiment). The 3-seed files of the earlier release
+(`results/results_final_eu*.csv`, `results/gsd_sensitivity_eu.csv`) and the figures made from
+them (`figures/chart_*.png`, `fig_eu_full_benchmark.png`, `fig_gsd_sensitivity.png`) are kept
+for provenance. The KNN donor search under supplier non-disclosure was corrected after that
+release (`CHANGELOG.md`), so the earlier KNN values for that pattern no longer apply; the
+ground truth and the other patterns are unchanged.
 
 **Reproducibility status:** every number below was regenerated from the included
-`data_build/` matrices, independently re-run across three review passes (most
-recently after fixing a data-leakage bug in the PEDIGREE/KNN repair functions and
-a latent mask-generation bug for the FLOW pattern in the GSD sweep — see
-`CHANGELOG.md`), and confirmed bit-exact across all runs in every pass.
+`data_build/` matrices, and reruns with the same seeds reproduce the stored results exactly
+(see `CHANGELOG.md`). A rerun of the VAE and GNN with seeds 0 to 99 reproduces the first 100
+seeds of the 500-seed files row for row.
 
 ![Experimental design and reproducibility pipeline](figures/fig_experiment_design.png)
 
@@ -73,20 +70,27 @@ statement, since Eurostat revises these tables periodically.
 Targets: 19 manufacturing industries (NACE C10-12 through C33), 171 pairwise comparisons
 per indicator. Three missingness patterns are imposed on A and B: random loss (MCAR),
 sensor failure (FLOW, structured by elementary flow), and supplier non-disclosure
-(BLOCK, entire columns unknown). Rates: 5, 10, 20, 40%. Three seeds per condition,
-for all methods.
+(BLOCK, entire columns unknown). Rates: 5, 10, 20, 40% of the 64 industries (3, 6, 12 and
+25 columns under BLOCK, drawn from the 45 non-manufacturing industries). 500 seeds per
+condition, for all methods. A supplier dose experiment removes 1, 2, 3, 6, 12 or 25
+non-manufacturing industries (200 seeds per condition).
 
 Five repair methods are compared on identical masks:
 - **PEDIGREE** — sibling-group (NACE section) proxy substitution with pedigree-style
   lognormal uncertainty widening (GSD 2.0 technosphere, 1.8 extension), current
   standard practice.
 - **KNN** — donor-column imputation (k=10, distance-weighted) with donor-resampling
-  Monte Carlo for uncertainty.
+  Monte Carlo for uncertainty. For a fully masked
+  column there is no jointly observed donor, so the donor set is the full sibling set with
+  equal weights, which is the pedigree point estimate.
 - **SOFTIMPUTE** — low-rank matrix completion via iterative soft-thresholded SVD.
 - **VAE** — column-wise variational autoencoder, trained per condition on observed
   entries only, decoder-sample Monte Carlo for uncertainty.
 - **GNN** — two-layer message-passing network over the technosphere adjacency
   (hand-implemented, no external graph library), MC-dropout for uncertainty.
+
+A sixth method, **ROWMEAN** (mean of the observed entries in the same row, no
+uncertainty estimate), serves as a naive reference.
 
 Neural network outputs are clamped in log-space to the observed data range before
 inverse transform, a standard stabilization step; see Limitations for what this does
@@ -94,76 +98,73 @@ and does not fix.
 
 Metrics, all computed after propagation through impact assessment: impact-level median
 absolute percentage error (MdAPE) per indicator, 95% Monte Carlo interval coverage,
-and material pairwise ranking flips (true gap > 5%).
+and material pairwise ranking flips (true gap > 5%). Interval width
+(median over the 19 targets and four indicators of the 95% interval width divided by the
+true impact) is reported for the factorial comparison. MdAPE is summarized across seeds by
+the median, coverage and flip rate by the mean.
 
-## Headline findings (verified against results/ CSVs, regenerated in this repo)
+## Headline findings (500 seeds; verified against results/ CSVs)
 
 1. **Pedigree-widened uncertainty intervals never reach their nominal level.** Across
    the twelve pattern-rate conditions, coverage of nominal 95% intervals ranges from
-   9.2% (random loss at the 20% rate) to 78.9% (sensor failure at the 10% rate), and
-   falls below 30% in six of the twelve conditions. The regime that comes closest to
-   nominal coverage is sensor failure at low rates, and even there it falls well short.
+   5.3% (random loss at the 40% rate) to 83.6% (sensor failure at the 5 and 10% rates),
+   and falls below 30% in seven of the twelve conditions. At 5% random loss, where the
+   median impact error is 2.8%, the intervals contain the true value in 29.2% of cases.
 
-2. **This is not an artifact of the specific GSD assumption, and widening the factor
-   further does not reliably help — evidenced across every pattern, not just two.** A
-   sensitivity sweep over GSD from 1.2 to 3.0 (the plausible pedigree range) across the
-   full grid (all three patterns, all four rates) shows coverage peaking at 45.2%
-   (supplier blocks, 40% rate, GSD 2.5) and *declining* again by the widest setting
-   tested (41.2% at GSD 3.0, same condition); 5 of the 12 swept conditions decline
-   past their peak, while the other 7 (including all sensor-failure rates) rise
-   toward a plateau still far below nominal. The sweep now also covers sensor failure
-   at the 10% rate — the single condition most favorable to pedigree in the main grid —
-   and even there coverage only reaches 84.6% at the widest GSD tested. No condition
-   anywhere in the 60 pattern-rate-GSD combinations swept reaches nominal 95%. See
-   `results/gsd_sensitivity_eu.csv` and `figures/fig_gsd_sensitivity.png`.
+2. **Widening the pedigree factor does not close the gap.** A sweep of the GSD from 1.2
+   to 3.0 across the full grid (60 pattern-rate-GSD combinations, same 500 seeds and 300
+   draws as the main grid) reaches at most 87.2% (sensor failure, 5%, GSD 3.0); none
+   reaches 95%. Under random loss at 40%, coverage is 3.1% at a GSD of 1.2 and 4.9% at
+   3.0. A GSD of 2.0 reproduces the main grid exactly. See `results/sweep_*_0_500.csv`
+   and panel (g) of `figures/fig1_500seed.png`.
 
-3. **KNN donor imputation is the better-calibrated method under entrywise missingness,
-   though not by as wide or as uniform a margin as the code first suggested (see Fixed
-   issues below).** Under random loss and sensor failure, KNN's donor-resampling
-   intervals achieve 66-88% coverage, against pedigree's 9-79% in the same conditions —
-   KNN is higher in seven of the eight rate-pattern combinations and statistically tied
-   with pedigree at the eighth (sensor failure, 10% rate: 78.9% for both). Point
-   accuracy is comparable between the two rather than uniformly better for either
-   (pedigree holds a moderate accuracy advantage at the highest rate: 33.6% vs. 40.9%
-   median error at the 40% rate under random loss).
+3. **The failure comes from the uncertainty model, not from the proxy value.** A 2 x 2
+   comparison crosses the point estimate (sibling mean or KNN) with the uncertainty
+   model (independent lognormal factors or resampling from observed values). Under
+   random loss at 5%, coverage is 29.2% (sibling, lognormal), 27.8% (KNN, lognormal),
+   88.6% (sibling, resampling) and 92.3% (KNN, resampling). The independent factors
+   partly cancel in the Leontief sum, and the sibling mean lies above the true value for
+   skewed coefficients (the true value falls below the lower bound in 97% of the misses
+   at 5% random loss). Resampling does not close the gap at high missingness (60.6% at
+   40% random loss) and its intervals are wider (median width 134% of the true impact
+   against 92% for the lognormal factors). See `results/fact_*_0_500.csv`.
 
-4. **No method recovers reliable estimates under supplier non-disclosure — though KNN
-   and pedigree are not fully independent under this pattern.** When entire columns are
-   unknown, coverage collapses for every method (at most 75.4%, KNN at the 10% rate),
-   and the plain pedigree baseline is the most accurate of the five at the 40% rate:
-   14.6% median error, against 24.6% for KNN, 34.4% for the VAE, 41.5% for SoftImpute,
-   and 75.9% for the GNN. This indicates block missingness is a data-acquisition
-   problem, not an imputation problem. Under this pattern, however, KNN's donor search
-   routinely finds no jointly-observed candidate and falls back to the same
-   sibling-averaging rule as the pedigree baseline, so this comparison is one repair
-   strategy under two uncertainty treatments more than two independent methods (see
-   Limitations). The BLOCK candidate pool also excludes the 19 target (manufacturing)
-   industries by construction, so this describes non-disclosure by an upstream
-   supplier, not by a target industry itself.
+4. **KNN is better calibrated than the pedigree baseline under entrywise missingness,
+   through its resampled intervals and not its donor estimates.** Under random loss and
+   sensor failure KNN reaches 57 to 92% coverage against 5 to 84% for pedigree, higher in
+   all eight rate-pattern combinations. Point accuracy is comparable (median error 2.9
+   and 2.8% at 5% random loss, 50.0 and 50.3% at 40%); KNN is lower under sensor failure
+   at 40% (8.4 against 12.0%).
 
-5. **Model complexity does not track reliability.** Under sensor failure at the 40%
-   rate, three of the five methods show severe instability: the VAE reaches 289%
-   median error (driven by one of three seeds exceeding 700%), the GNN reaches 120%,
-   and SoftImpute reaches 116% — all far above pedigree's 11.8% and KNN's 10.8% at the
-   same condition. (These three unstable methods share the same per-condition seeds, so
-   the single-seed VAE spike is not independent evidence for all three — but the GNN and
-   SoftImpute use unrelated algorithms and both still exceed 100% at the same
-   condition.) The GNN's MC-dropout intervals are separately severely overconfident
-   under random loss (coverage never exceeding 3.5%). None of the three more complex
-   methods consistently outperforms the far simpler donor-based approach on either
-   accuracy or calibration.
+5. **Under supplier non-disclosure, error depends on how many industries are missing.**
+   At the 40% rate (25 columns) the median error is 23.9% for the pedigree baseline and
+   KNN (identical point estimates), 76.9% for the VAE, 41.1% for SoftImpute, 105.1% for
+   the GNN and 18.6% for the row-mean reference; coverage is at most 66.7% for any method.
+   In the dose experiment the sibling proxy has a median error of 0.4, 1.1, 1.8, 5.8, 12.3
+   and 22.6% with 1, 2, 3, 6, 12 and 25 missing industries, with a wide spread across draws
+   (interquartile range 0.5 to 6.4% at three and 6.8 to 23.7% at twelve). The rise is
+   gradual, not a threshold. Whether acquiring supplier data would reduce the error was not
+   tested, and non-disclosure is simulated as random. The BLOCK candidate pool excludes the
+   19 target industries by construction.
 
-6. **Decision stability is a distinct question from point error.** Random loss produces
-   the most pairwise ranking reversals under the pedigree baseline (14.8% at the 40%
-   rate), while supplier non-disclosure produces only 3.2% despite causing larger point
-   errors — sibling-average substitution biases whole product families in the same
-   direction, so bias partly cancels in a pairwise comparison, while random loss
-   produces uncorrelated errors that do not cancel.
+6. **Model complexity does not track reliability.** Under sensor failure at the 40% rate
+   the median error is 65.9% for the VAE, 47.4% for SoftImpute and 36.9% for the GNN,
+   against 12.0% for pedigree and 8.4% for KNN; 38.6%, 33.6% and 26.6% of the VAE,
+   SoftImpute and GNN seeds exceed 100% error (single-run maxima 2548, 3403 and 1239%).
+   Under random loss at 40% the three give 20.7 to 23.0% against about 50% for pedigree and
+   KNN, but their intervals are overconfident (VAE coverage never above 1.9%, GNN never
+   above 3.4%, none for SoftImpute), and the row-mean reference reaches 24.3%. The VAE and
+   GNN use fixed hyperparameters, so this describes them as configured.
 
-## Fixed issues (this pass — see CHANGELOG.md for full detail)
+7. **Decision stability is a different question from point error.** At the 40% rate under
+   random loss the flip rate is 13.6% for pedigree, 15.2% for KNN, 10.8% for the VAE and
+   GNN and 11.1% for the row-mean reference; under sensor failure KNN is lowest (2.9%) and
+   the GNN highest (9.8%); under supplier non-disclosure pedigree and KNN give 3.1%.
 
-An independent 5-reviewer methodological audit of this repository and the companion
-manuscript found two code-level issues and three manuscript-level issues, all now
+## Fixed issues (see CHANGELOG.md for full detail)
+
+A methodological audit of the earlier release of this repository and the companion
+manuscript found two code-level issues and three manuscript-level issues, all
 fixed:
 
 - **Data leakage in PEDIGREE/KNN repair** — both functions averaged sibling/donor
@@ -186,9 +187,25 @@ fixed:
   the missingness patterns, were undisclosed in the manuscript body** — both are now
   disclosed at the point they matter (see the manuscript's Section 4.4 and Limitations).
 
-All fixes were re-verified bit-exact reproducible (see CHANGELOG.md).
+A later check found a fourth code-level issue, fixed in the 500-seed release:
+
+- **KNN tie-break under supplier non-disclosure** — for a fully masked column all
+  candidate distances tie, and the earlier code kept an arbitrary first ten of the tied
+  candidates. KNN now uses the full sibling set with equal weights, so it equals the
+  pedigree point estimate under this pattern. Random loss and sensor failure are
+  unchanged.
+
+Reruns after each fix reproduce the stored results exactly (see CHANGELOG.md).
 
 ## Figures manifest
+
+`figures/fig1_500seed.png` — main figure of the revised manuscript, panels (a) to (h):
+error (a to c) and coverage (d to f) under the three patterns, GSD sweep (g), ranking
+flips at 40% (h).
+`figures/fig2_dose.png` — supplier dose experiment (median error with interquartile
+range, coverage, flips against the number of missing industries).
+
+The figures below were made from the 3-seed release and are kept for provenance:
 
 `figures/fig_eu_full_benchmark.png` — combined 2x3 grid, all patterns, error and
 calibration.
@@ -204,32 +221,35 @@ Individual charts (one panel each, for manuscript figure selection):
 - `chart_flips_pedigree.png` — material ranking flips under the pedigree baseline,
   all three patterns overlaid (decision-stability result, not in the combined figure).
 
-All figures are regenerated from `results/` by `code/make_figures.py` — they are not
-committed as hand-edited artifacts.
+The 500-seed figures are regenerated from `results/` by `code/make501.py`, and the
+earlier figures by `code/make_figures.py`; none is a hand-edited artifact.
 
 ## Limitations
 
-- Three seeds per condition; results are directionally stable but a larger seed
-  count would tighten the exact crossover points. The VAE's 289% figure at FLOW/40%
-  in particular is driven by one high-variance seed (see `CHANGELOG.md`).
+- 500 seeds per condition (200 for the dose experiment). A minority of seeds give extreme
+  errors for the VAE, SoftImpute and GNN, so MdAPE is summarized by the median. Medians
+  from the first 100 seeds differ from the 500-seed values by up to 16% (relative) at the
+  40% rate for the VAE and GNN, so the figures for these two methods carry sampling
+  uncertainty. Their hyperparameters are fixed.
+- Whether acquiring supplier data would reduce the error was not tested, and supplier
+  non-disclosure is simulated as random.
 - This is an input-output testbed (64 industries), not a process-based inventory.
   The masking and evaluation logic transfer unchanged to process-based databases;
   that validation is future work.
 - Log-space clamping bounds individual entry reconstructions to the observed range
   but does not prevent degradation once many imputed entries compound through the
-  Leontief inverse; this is reported as a finding (point 5), not resolved.
-- KNN's block-pattern fallback (when fewer than 5 industries are jointly observed)
-  degrades to sibling averaging, making it non-independent from the pedigree baseline
-  under BLOCK specifically (finding 4); a hybrid estimator with a different fallback is
-  a straightforward extension.
+  Leontief inverse; this is reported as a finding (finding 6), not resolved.
+- KNN has no donor for a fully masked column and equals the pedigree point estimate
+  under BLOCK (finding 5), so that comparison contrasts uncertainty treatments only; a
+  hybrid estimator with a different fallback is a straightforward extension.
 - The BLOCK candidate pool is restricted to the 45 non-manufacturing industries by
-  construction, so finding 4 ("no method survives supplier non-disclosure") describes
+  construction, so finding 5 describes
   non-disclosure by an upstream supplier, not by one of the 19 target industries
   directly; whether it extends to target-industry non-disclosure is untested here.
-- The GSD sensitivity sweep now covers the full 3-pattern x 4-rate grid with the
-  baseline method (previously only MCAR/BLOCK at 20%/40% — see CHANGELOG.md).
-- The PEDIGREE/KNN repair functions were leakage-free only after this pass's fix (see
-  "Fixed issues" above); SoftImpute, VAE, and GNN never had this issue.
+- The GSD sensitivity sweep covers the full 3-pattern x 4-rate grid with the baseline
+  method (earlier releases covered only MCAR/BLOCK at 20%/40% — see CHANGELOG.md).
+- The PEDIGREE/KNN repair functions were leakage-free only after the fix listed under
+  "Fixed issues"; SoftImpute, VAE, and GNN never had this issue.
 
 ## Reproducing
 
@@ -246,8 +266,10 @@ python make_figures.py
 Scripts resolve the built matrices from `../data_build/` automatically, and write
 result CSVs to `../results/` (falling back to the working directory if `results/`
 doesn't exist). `make_figures.py` reads `results/` and (re)writes everything in
-`figures/`. No GPU, no license, no registration. The full grid completes in well
-under a minute on a single CPU core.
+`figures/`. No GPU, no license, no registration. The commands above run the 3-seed
+grid of the earlier release (under a minute on a single CPU core); the 500-seed runs are
+listed in the last section and take about 13 minutes per pattern for the main grid
+without the VAE, 14 minutes for the VAE and 31 minutes for the GSD sweep.
 
 Environment used for the results in `results/`: Python 3.12, numpy 2.4.4,
 pandas 3.0.2, torch 2.13.0 (CPU). Reproducibility does not depend on exact package
