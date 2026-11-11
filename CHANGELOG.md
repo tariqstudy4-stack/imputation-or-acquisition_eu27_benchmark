@@ -12,6 +12,7 @@
 - Rerun: KNN rows of the main grid (`res_BLOCK_*`) and the supplier dose experiment (`dose_*`), 500 and 200 seeds.
 - Added: `code/rowmean.py` (naive row-mean fill, no uncertainty estimate; main grid and dose experiment) and `code/fact_width.py` (factorial comparison with the 95% interval width and the side of the miss; coverage values identical to the earlier run).
 - Added: interval width (median across the 19 targets and four indicators of the 95% interval width divided by the true impact) in Table 2 and Table S2; interquartile ranges of the dose experiment in Table S4 and Fig. S1.
+- Added: `code/summary_extra.py` and `results/summary_extra.json` (mean error, median coverage and 95% bootstrap intervals of the ranking-flip rate over seeds for every condition of the main grid; the source of the additional entries in Table S1).
 - `results/summary501.json` and `figures/` replace `summary500.json` and the earlier figures; `code/make501.py` and `code/numbers501.py` regenerate them.
 
 ## Verification pass (no result changes)

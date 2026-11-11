@@ -289,6 +289,7 @@ The revised manuscript reports 500 seeds per condition (the 3-seed files in `res
 | Factorial comparison with interval width (Table 2) | `code/fact_width.py <pattern> <seed0> <seed1>` | `results/fact_*_0_500.csv` |
 | GSD sweep (Fig. 1g) | `code/ana500.py <pattern> <seed0> <seed1>` | `results/sweep_*.csv` |
 | Supplier dose experiment (Fig. S1) | `code/dose500.py` | `results/dose_*_0_200.csv` (200 seeds) |
+| Mean error, median coverage, flip-rate intervals (Table S1) | `code/summary_extra.py` (run from the repository root) | `results/summary_extra.json` |
 | Summary values, figures | `code/make501.py`, `code/numbers501.py` (run from the repository root) | `results/summary501.json`, `results/numbers.json`, `figures/fig1_500seed.png`, `figures/fig2_dose.png` |
 
 Run the `code/` scripts from the `code/` folder; they read `experiment_final_eu.py` and `../data_build/`. `<pattern>` is `MCAR`, `FLOW` or `BLOCK`; `<methods>` is a comma-separated list such as `PEDIGREE,KNN,SOFTIMPUTE,GNN` or `VAE`. A single-seed run of `fact_width.py MCAR 0 1` reproduces the stored seed-0 rows exactly. Under `BLOCK`, KNN has no donor for a masked column and equals the pedigree point estimate (see `CHANGELOG`).
